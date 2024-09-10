@@ -41,13 +41,14 @@ class ChatRoomViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-    @action(detail=True, permission_classes=[IsAdminUser, IsChatRoomCreator])
+    @action(detail=True, permission_classes=[IsChatRoomCreator])
     def get_members(self, request, **kwargs):
         room_id = self.kwargs['room_id']
         members = ChatRoom.objects.get(room_id=room_id)
         serializer = MemberSerializer(members)
         return Response(serializer.data)
-    
+
+
     @action(detail=True, methods=['get', 'delete'], url_path='member/(?P<user_id>[^/.]+)', permission_classes=[GetMember])
     def member(self, request, **kwargs):
         chat_room = self.get_object()

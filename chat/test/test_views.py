@@ -99,6 +99,7 @@ class ChatRoomViewSetTests(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
         self.client.force_authenticate(self.user2)
         no_perm_response = self.client.get(url)
         self.assertEqual(no_perm_response.status_code, status.HTTP_403_FORBIDDEN)

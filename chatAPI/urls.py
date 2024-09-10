@@ -19,6 +19,9 @@ from django.urls import path, include
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from rest_framework.routers import DefaultRouter
+from users.urls import router as usersrouter
+from chat.urls import router as chatrouter
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -34,6 +37,9 @@ schema_view = get_schema_view(
 )
 
 
+router = DefaultRouter()
+router.registry.extend(usersrouter.registry)
+router.registry.extend(chatrouter.registry)
 
 urlpatterns = [
     # swagger docs
@@ -43,6 +49,8 @@ urlpatterns = [
 
 
     path('admin/', admin.site.urls),
-    path('api/v1/', include('users.urls')),
-    path('api/v1/chatroom/', include('chat.urls'))
+    path('api/v1/', include(router.urls))
+    
+    # path('api/v1/', include('users.urls')),
+    # path('api/v1/', include('chat.urls'))
 ] 

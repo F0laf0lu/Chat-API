@@ -4,13 +4,14 @@ from chat.models import ChatRoom
 class IsChatRoomCreator(BasePermission):
     def has_permission(self, request, view):
         chatroom = ChatRoom.objects.get(room_id=view.kwargs['room_id'])
-        return chatroom.creator == request.user
+        return chatroom.creator == request.user or request.user.is_superuser
 
     def  has_object_permission(self, request, view, chatroom):
         if request.method in SAFE_METHODS:
             return True
         return request.user == chatroom.creator
-    
+
+
 class CanAdduser(BasePermission):
     def has_permission(self, request, view):
         chatroom = ChatRoom.objects.get(room_id=view.kwargs['room_id'])
@@ -20,7 +21,7 @@ class GetMember(BasePermission):
     def has_permission(self, request, view):
         chatroom = ChatRoom.objects.get(room_id=view.kwargs['room_id'])
         if request.user.is_authenticated:
-            if chatroom.creator == request.user or request.user.is_admin:
+            if chatroom.creator == request.user or request.user.is_superuser:
                 return True 
 
     def  has_object_permission(self, request, view, chatroom):
@@ -28,7 +29,6 @@ class GetMember(BasePermission):
             return True
         chatroom = ChatRoom.objects.get(room_id=view.kwargs['room_id'])
         return request.user == chatroom.creator
-
 
 class ChatRoomMember(BasePermission):
     def has_permission(self, request, view):
