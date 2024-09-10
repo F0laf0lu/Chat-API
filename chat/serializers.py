@@ -73,3 +73,11 @@ class SendChatSerializer(serializers.ModelSerializer):
             room = chatroom,
         )
         return message
+    
+
+class MessageSerializer(serializers.ModelSerializer):
+    room = serializers.StringRelatedField()
+    sender = serializers.StringRelatedField()
+    class Meta:
+        model = Message
+        fields = "__all__"

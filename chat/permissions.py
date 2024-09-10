@@ -2,11 +2,13 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 from chat.models import ChatRoom
 
 class IsChatRoomCreator(BasePermission):
+    def has_permission(self, request, view):
+        chatroom = ChatRoom.objects.get(room_id=view.kwargs['room_id'])
+        return chatroom.creator == request.user
 
     def  has_object_permission(self, request, view, chatroom):
         if request.method in SAFE_METHODS:
             return True
-        
         return request.user == chatroom.creator
     
 class CanAdduser(BasePermission):
@@ -17,15 +19,17 @@ class CanAdduser(BasePermission):
 class GetMember(BasePermission):
     def has_permission(self, request, view):
         chatroom = ChatRoom.objects.get(room_id=view.kwargs['room_id'])
-        if chatroom.creator == request.user or request.user.is_admin:
-            return True 
+        if request.user.is_authenticated:
+            if chatroom.creator == request.user or request.user.is_admin:
+                return True 
 
     def  has_object_permission(self, request, view, chatroom):
         if request.method in SAFE_METHODS:
             return True
-        
+        chatroom = ChatRoom.objects.get(room_id=view.kwargs['room_id'])
         return request.user == chatroom.creator
-    
+
+
 class ChatRoomMember(BasePermission):
     def has_permission(self, request, view):
         chatroom_members = ChatRoom.objects.get(room_id=view.kwargs['room_id']).members.all()

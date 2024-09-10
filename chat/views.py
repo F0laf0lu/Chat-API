@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from .models import ChatRoom
-from .serializers import ChatRoomSerializer, CreateChatRoomSerializer,  AddUserToRoomSerializer, MemberSerializer, ChatRoomMemberSerializer, SendChatSerializer
+from .serializers import ChatRoomSerializer, CreateChatRoomSerializer,  AddUserToRoomSerializer, MemberSerializer, ChatRoomMemberSerializer, SendChatSerializer, MessageSerializer
 from .permissions import IsChatRoomCreator, CanAdduser, GetMember, ChatRoomMember
 
 
@@ -48,7 +48,7 @@ class ChatRoomViewSet(ModelViewSet):
         serializer = MemberSerializer(members)
         return Response(serializer.data)
     
-    @action(detail=True, methods=['get', 'delete'], url_path='member/(?P<user_id>[^/.]+)')
+    @action(detail=True, methods=['get', 'delete'], url_path='member/(?P<user_id>[^/.]+)', permission_classes=[GetMember])
     def member(self, request, **kwargs):
         chat_room = self.get_object()
         user_id = kwargs['user_id']
@@ -88,9 +88,9 @@ class ChatRoomViewSet(ModelViewSet):
                 {
                     'type': 'chat_message', 
                     'message': socket_message,
-                    'message_id': message.message_id,
+                    'message_id': str(message.message_id),
                     'user': request.user.username,
                     'room_name': room.room_name
                 }
             )
-            return Response({"status": True}, status=status.HTTP_201_CREATED)
+            return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
